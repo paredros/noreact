@@ -34,6 +34,24 @@ El framework intercepta los clics en links y contenedores especiales, y realiza 
 
 ---
 
+## Cómo usarlo en Django
+Una de las ventajas de este framework es que no exige cambiar cómo escribís tus vistas en Django. No hace falta construir una API REST ni responder JSON, ni escribir views especiales.
+Solo tenés que preparar tus views para que reconozcan cuándo la navegación es AJAX y cuándo es una carga completa.
+
+#View típica
+```python
+def about(request):
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'about.html')  # solo la parte interna
+
+    return render(request, 'base.html', {
+        'template': 'about.html'  # HTML completo con base
+    })
+```
+Esto le permite al framework reemplazar solo el contenido dinámico (about.html) cuando navega por AJAX, y cargar la página entera (base.html) cuando entrás por URL directa o recargás.
+
+---
+
 ## Estructura
 
 | Archivo               | Rol                                                  |
