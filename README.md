@@ -6,9 +6,13 @@ Este proyecto es un mini-framework en JavaScript diseñado para integrarse con p
 
 ---
 
-## ✨ Filosofía
+## Filosofía
 
-- **Sin dependencias**: todo en JavaScript plano + GSAP si se desea animar.
+En muchos proyectos web modernos se cae rápidamente en la tentación de adoptar soluciones complejas para resolver problemas simples. Pero la complejidad no es gratis: consume tiempo, energía, recursos, y muchas veces termina alejando al desarrollador del control real sobre su código.
+
+Este framework nace como una respuesta minimalista a esa tendencia. En lugar de imponer estructuras pesadas o herramientas externas, se apoya en la idea de que con JavaScript plano, un par de convenciones claras, y un diseño cuidadoso, se puede lograr una experiencia fluida, animada y mantenible, sin sacrificar simplicidad ni legibilidad.
+
+- **Sin dependencias**: todo en JavaScript plano
 - **Transiciones suaves entre vistas**, sin recargar todo el sitio.
 - **Modularidad absoluta**: cada vista puede tener su propio JS embebido.
 - **Limpieza automática** de animaciones, listeners y recursos.
@@ -16,13 +20,21 @@ Este proyecto es un mini-framework en JavaScript diseñado para integrarse con p
 
 ---
 
-## 🚀 Cómo funciona
+## Objetivo
+
+Este mini-framework implementa una navegación tipo SPA (Single Page Application), en la que los enlaces internos no recargan toda la página, sino que reemplazan dinámicamente el contenido principal (#main-content) mediante AJAX. Esto permite que la estructura general del sitio se mantenga, mientras el contenido, las animaciones y los scripts de cada vista se cargan y limpian modularmente.
+
+A diferencia de los frameworks SPA tradicionales (React, Vue, etc.), este sistema no requiere compilar nada, ni mantener un estado global, ni renunciar al backend tradicional (como Django). Todo ocurre en el navegador, con archivos estáticos y control explícito: se navega sin reload, se transiciona sin glitch, y se ejecuta solo el código necesario en cada sección.
+
+---
+
+## Cómo funciona
 
 El framework intercepta los clics en links y contenedores especiales, y realiza navegación AJAX reemplazando `#main-content` con el contenido nuevo. Esto permite aplicar transiciones visuales y cargar dinámicamente scripts embebidos de cada vista.
 
 ---
 
-## 📂 Estructura
+## Estructura
 
 | Archivo               | Rol                                                  |
 |----------------------|-------------------------------------------------------|
@@ -37,7 +49,7 @@ El framework intercepta los clics en links y contenedores especiales, y realiza 
 
 ---
 
-## ⚙️ Cómo usarlo
+## Cómo usarlo
 
 ### 1. Navegación AJAX normal
 
@@ -65,7 +77,7 @@ Podés envolver un video o imagen en un contenedor con clase especial:
 
 Al hacer click, el contenido se expande a fullscreen y luego transiciona a la nueva página.
 
-🧠 Importante: en la página de destino, el video o imagen que recibe la transición debe tener uno de los siguientes atributos:
+!!!! Importante: en la página de destino, el video o imagen que recibe la transición debe tener uno de los siguientes atributos:
 
 - `<video data-main-video>` → si se trata de una transición de video.
 - `<img data-main-image>` → si es una transición de imagen.
@@ -85,7 +97,7 @@ Ejemplo:
 
 ---
 
-## 🧠 Scripts por vista
+## Scripts por vista
 
 Cada vista puede incluir su propio script JS embebido. El framework los ejecuta automáticamente al cargar la vista.
 
@@ -114,7 +126,7 @@ Para usar módulos ES6 (`import`, etc.). El framework los inyecta como `<script 
 
 ---
 
-## 🧼 Limpieza automática (cleanup)
+## Limpieza automática (cleanup)
 
 La limpieza de memoria, de scripts, y cualquier basura que pueda quedar corriendo de fondo
 es exclusiva responsabilidad del mismo script y de la organizacion del desarrollador.
@@ -130,7 +142,7 @@ El framework ejecuta `cleanupPage()` antes de reemplazar el contenido con `loadP
 
 ---
 
-## 🧠 Sincronización de video (opcional)
+## Sincronización de video (opcional)
 
 Si usás una transición de video, el framework guarda el tiempo actual en:
 
@@ -150,7 +162,7 @@ if (typeof window.__transitionVideoSyncTime !== 'undefined') {
 
 ---
 
-## 🛠 Consideraciones importantes
+## Consideraciones importantes
 
 - El contenedor principal debe tener ID `#main-content`.
 - Las transiciones por defecto son de opacidad. Podés reemplazarlas en `transition.js`.
@@ -159,7 +171,7 @@ if (typeof window.__transitionVideoSyncTime !== 'undefined') {
 
 ---
 
-## 🧪 Compatibilidad
+## Compatibilidad
 
 Testeado en:
 - Chrome
@@ -168,6 +180,9 @@ Testeado en:
 
 ---
 
+## Casos de uso
+
+[Black Oveja Collective](https://www.blackovejacollective.com/)
 
 ---
 
