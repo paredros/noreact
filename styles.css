@@ -1,0 +1,22 @@
+#main-content {
+  transition: opacity 0.3s ease-in-out;
+}
+
+#ajax-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background: transparent;
+  z-index: 10000;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+#ajax-loader .bar {
+  height: 100%;
+  width: 0%;
+  background-color: var(--mainColor);
+  transition: width 0.2s ease-out;
+}
