@@ -35,10 +35,17 @@ El framework intercepta los clics en links y contenedores especiales, y realiza 
 ---
 
 ## Cómo usarlo en Django
-Una de las ventajas de este framework es que no exige cambiar cómo escribís tus vistas en Django. No hace falta construir una API REST ni responder JSON, ni escribir views especiales.
-Solo tenés que preparar tus views para que reconozcan cuándo la navegación es AJAX y cuándo es una carga completa.
+Una de las ideas centrales de este framework es no romper con la forma tradicional de trabajar en Django.
+No necesitás transformar tus views en APIs, ni cambiar cómo escribís tus templates.
+Seguís usando render(), extends, include, y toda la lógica que ya conocés.Una de las ideas centrales de este framework es no romper con la forma tradicional de trabajar en Django.
+No necesitás transformar tus views en APIs, ni cambiar cómo escribís tus templates.
+Seguís usando render(), extends, include, y toda la lógica que ya conocés.
 
-#View típica
+###Views AJAX-friendly
+Solo necesitás adaptar tus views para que puedan devolver:
+El HTML completo (base.html + contenido) si es una carga directaO solo el bloque interno si es una navegación AJAX
+
+Ejemplo:
 ```python
 def about(request):
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -48,7 +55,31 @@ def about(request):
         'template': 'about.html'  # HTML completo con base
     })
 ```
-Esto le permite al framework reemplazar solo el contenido dinámico (about.html) cuando navega por AJAX, y cargar la página entera (base.html) cuando entrás por URL directa o recargás.
+Esto permite que cuando navegás por AJAX, solo se devuelva el contenido parcial (about.html) que el framework va a insertar dentro de #main-content.
+
+### Organización de templates
+A diferencia de otros enfoques, no necesitás meter lógica de layout dentro de cada archivo.
+El layout global (base.html) solo debe tener:
+```html
+<body>
+    <header>...</header>
+
+    {% include template %}
+    
+    <footer>...</footer>
+    <script type="module" src="{% static 'js/noreact/main.js' %}"></script>
+</body>
+```
+Y luego, en cada template interno (about.html, artist_detail.html, etc.), usás libremente HTML como siempre, incluyendo el contenedor que será reemplazado:
+```html
+<div id="main-content">
+  <h1>Sobre nosotros</h1>
+  <p>Este sitio está construido sin frameworks pesados.</p>
+</div>
+```
+Esta decisión mantiene los templates modulares, simples y reutilizables.
+No hay que romper ni reestructurar nada para trabajar con el sistema de transiciones.
+
 
 ---
 
