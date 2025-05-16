@@ -14,3 +14,4 @@ export function trigger(event, data = {}) {
     listeners[event].forEach(cb => cb(data));
   }
 }
+//agregue un comentario para testear
