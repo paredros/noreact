@@ -12,7 +12,9 @@ export function initRouter() {
   function setupDelegatedNavigation() {
     document.body.addEventListener('click', (e) => {
       // manejo de links AJAX
-      const link = e.target.closest('a[data-ajax-link]');
+      /*
+      *
+      * const link = e.target.closest('a[data-ajax-link]');
       if (link && link.href && !link.hasAttribute('data-no-ajax')) {
         e.preventDefault();
         const url = link.href;
@@ -21,6 +23,23 @@ export function initRouter() {
         loadPage(url);
         return;
       }
+      * */
+
+      const linkEl = e.target.closest('[data-ajax-link]');
+      if (linkEl && !linkEl.hasAttribute('data-no-ajax')) {
+        e.preventDefault();
+
+        const url = linkEl.tagName === 'A'
+          ? linkEl.getAttribute('href')
+          : linkEl.getAttribute('data-target');
+
+        if (!url) return;
+
+        history.pushState(null, '', url);
+        loadPage(url);
+        return;
+      }
+
 
 
       // transición de video
@@ -39,7 +58,7 @@ export function initRouter() {
       }
 
       // transición de imagen
-      const imageWrapper = e.target.closest('.to-image-transition');
+      /*const imageWrapper = e.target.closest('.to-image-transition');
       if (imageWrapper) {
         const img = imageWrapper.querySelector('img');
         const target = imageWrapper.getAttribute('data-target');
@@ -51,7 +70,34 @@ export function initRouter() {
           });
           return;
         }
+      }^/
+
+       */
+      // transición de imagen
+      const imageWrapper = e.target.closest('.to-image-transition');
+      if (imageWrapper) {
+        const target = imageWrapper.getAttribute('data-target');
+        if (!target) return;
+
+        let img = imageWrapper.querySelector('img');
+
+        const selector = imageWrapper.getAttribute('data-image-selector');
+        if (selector) {
+          const externalImage = document.querySelector(selector);
+          if (externalImage instanceof HTMLImageElement) {
+            img = externalImage;
+          }
+        }
+
+        if (img) {
+          e.preventDefault();
+          import('./image-transition.js').then(mod => {
+            mod.expandImageAndNavigate(img, target);
+          });
+          return;
+        }
       }
+
     });
 
   }
