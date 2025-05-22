@@ -100,13 +100,24 @@ No hay que romper ni reestructurar nada para trabajar con el sistema de transici
 
 ## Cómo usarlo
 
-### 1. Navegación AJAX normal
+### 1. Navegación AJAX normal (links o cualquier elemento)
 
-Para que un link se cargue con AJAX y sin recarga de página:
+Cualquier elemento con `data-ajax-link` dispara navegación AJAX reemplazando `#main-content`.
+
+#### Ejemplo con `<a>` (convencional):
 
 ```html
 <a href="/about/" data-ajax-link>About</a>
 ```
+
+#### Ejemplo con <div> o <button> (usando data-target):
+```html
+<div data-ajax-link data-target="/about/" style="cursor: pointer;">
+  Ir a About
+</div>
+```
+Si el elemento es un <a>, se usa el atributo href.
+Para otros elementos, se debe especificar data-target.
 
 ---
 
@@ -143,6 +154,28 @@ Ejemplo:
 <img data-main-image src="obra_completa.jpg" />
 ```
 
+### 🔁 Disparar transición desde un botón o texto (usando imagen externa)
+
+Podés disparar la transición de imagen desde cualquier elemento (botón, texto, link)  
+usando `data-image-selector` para indicar qué imagen existente en la vista usar como origen.
+
+#### Ejemplo:
+
+```html
+<!-- Imagen en la vista -->
+<img id="obra-img" src="/media/obra.jpg" />
+
+<!-- Botón que dispara la transición -->
+<div class="to-image-transition" 
+     data-target="/obra/23" 
+     data-image-selector="#obra-img">
+  <button>Ver detalles</button>
+</div>
+```
+
+La imagen no necesita estar dentro del contenedor clickeado.
+El atributo data-image-selector debe contener un selector CSS válido (#id, .clase, etc.).
+Si no se especifica, se usa la imagen dentro del contenedor (comportamiento por defecto).
 
 ---
 
