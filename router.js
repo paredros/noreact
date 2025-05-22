@@ -35,7 +35,12 @@ export function initRouter() {
 
         if (!url) return;
 
-        history.pushState(null, '', url);
+        // ⬇️ Guardar el scroll actual en el estado del historial actual
+        const currentState = history.state || {};
+        currentState.scrollY = window.scrollY;
+        history.replaceState(currentState, '');
+
+        history.pushState({ scrollY: 0 }, '', url);
         loadPage(url);
         return;
       }
@@ -43,13 +48,36 @@ export function initRouter() {
 
 
       // transición de video
-      const videoWrapper = e.target.closest('.to-video-transition');
+      /*const videoWrapper = e.target.closest('.to-video-transition');
       if (videoWrapper) {
         const video = videoWrapper.querySelector('video');
         const target = videoWrapper.getAttribute('data-target');
         if (video && target) {
           e.preventDefault();
           //if (target === window.location.href) return;
+          import('./video-transition.js').then(mod => {
+            mod.expandVideoAndNavigate(video, target);
+          });
+          return;
+        }
+      }*/
+      const videoWrapper = e.target.closest('.to-video-transition');
+      if (videoWrapper) {
+        const target = videoWrapper.getAttribute('data-target');
+        if (!target) return;
+
+        let video = videoWrapper.querySelector('video');
+
+        const selector = videoWrapper.getAttribute('data-video-selector');
+        if (selector) {
+          const externalVideo = document.querySelector(selector);
+          if (externalVideo instanceof HTMLVideoElement) {
+            video = externalVideo;
+          }
+        }
+
+        if (video) {
+          e.preventDefault();
           import('./video-transition.js').then(mod => {
             mod.expandVideoAndNavigate(video, target);
           });
@@ -105,10 +133,31 @@ export function initRouter() {
   /*window.addEventListener('popstate', () => {
     loadPage(location.href);
   });*/
-  window.addEventListener('popstate', () => {
+  window.addEventListener('popstate', (event) => {
     //alert("P")
     //trigger('beforePageLoad', { url: location.href });
-    loadPage(location.href);
+    //loadPage(location.href);
+    const scrollY = event.state?.scrollY ?? 0;
+
+    loadPage(location.href).then(() => {
+      if (location.hash) return;
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (window.ScrollTrigger) {
+            window.ScrollTrigger.refresh(true);
+          }
+
+          setTimeout(() => {
+            if (window.lenis?.scrollTo) {
+              window.lenis.scrollTo(scrollY, { immediate: true });
+            } else {
+              window.scrollTo(0, scrollY);
+            }
+          }, 0);
+        });
+      });
+    });
   });
   /*window.addEventListener('pageshow', (event) => {
     alert("K"+event.persisted)

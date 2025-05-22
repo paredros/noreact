@@ -6,6 +6,11 @@ export async function expandVideoAndNavigate(videoEl, targetUrl) {
   const clone = videoEl.cloneNode(true);
   const rect = videoEl.getBoundingClientRect();
 
+  // ⬇️ Guardar el scroll actual en el estado del historial actual
+        const currentState = history.state || {};
+        currentState.scrollY = window.lenis?.scroll || window.scrollY;
+        history.replaceState(currentState, '');
+
   // 2. Estilo para posición fija
   Object.assign(clone.style, {
     position: 'fixed',
@@ -103,8 +108,9 @@ export async function expandVideoAndNavigate(videoEl, targetUrl) {
 
   const off= on('afterPageLoad', handler);
 
+
   // 5. Disparar navegación AJAX normal
-  history.pushState(null, '', targetUrl);
+  history.pushState({ scrollY: 0 }, '', targetUrl);
   trigger('beforePageLoad', { url: targetUrl });
   await loadPage(targetUrl);
 }

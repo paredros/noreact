@@ -85,6 +85,13 @@ on('afterPageLoad', () => {
     }
   });
 
+  // 🔽 Scroll manual al anchor si hay hash
+  if (location.hash) {
+    const target = document.querySelector(location.hash);
+    if (target) {
+      target.scrollIntoView({ behavior: 'auto' });
+    }
+  }
 });
 
 document.addEventListener("DOMContentLoaded", createLoader);

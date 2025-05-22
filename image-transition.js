@@ -6,6 +6,11 @@ export async function expandImageAndNavigate(imageEl, targetUrl) {
   const clone = imageEl.cloneNode(true);
   const rect = imageEl.getBoundingClientRect();
 
+  // ⬇️ Guardar el scroll actual en el estado del historial actual
+        const currentState = history.state || {};
+        currentState.scrollY = window.lenis?.scroll || window.scrollY;
+        history.replaceState(currentState, '');
+
   // 2. Estilo base del clon
   Object.assign(clone.style, {
     position: 'fixed',
@@ -72,7 +77,7 @@ export async function expandImageAndNavigate(imageEl, targetUrl) {
   const off= on('afterPageLoad', handler);
 
   // 6. Disparar navegación AJAX
-  history.pushState(null, '', targetUrl);
+  history.pushState({ scrollY: 0 }, '', targetUrl);
   trigger('beforePageLoad', { url: targetUrl });
   await loadPage(targetUrl);
 }
