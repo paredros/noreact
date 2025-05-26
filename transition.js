@@ -37,6 +37,7 @@ export function runTransitionOut(container) {
 
     setTimeout(() => {
       container.style.opacity = 0;
+      container.style.removeProperty('transform-origin');
       container.classList.remove('noreact-out-transition');
       resolve();
     }, timeout);
@@ -81,6 +82,7 @@ export function runTransitionIn(container) {
     //container.style.opacity = 'unset';
     setTimeout(() => {
       container.style.opacity = 1;
+      container.style.removeProperty('transform-origin');
       container.classList.remove('noreact-in-transition');
       resolve();
     }, timeout);
