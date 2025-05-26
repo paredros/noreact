@@ -177,6 +177,33 @@ La imagen no necesita estar dentro del contenedor clickeado.
 El atributo data-image-selector debe contener un selector CSS válido (#id, .clase, etc.).
 Si no se especifica, se usa la imagen dentro del contenedor (comportamiento por defecto).
 
+### 🎞️ Disparar transición de video desde un botón o texto (usando video externo)
+
+Podés disparar la transición desde cualquier elemento, como un botón o un link,  
+usando `data-video-selector` para indicar qué `<video>` usar como origen de la animación.
+
+#### Ejemplo:
+
+```html
+<!-- Video en la vista -->
+<video id="preview-video" autoplay muted loop src="/media/demo.mp4"></video>
+
+<!-- Texto que dispara la transición -->
+<div class="to-video-transition" 
+     data-target="/artista/julia" 
+     data-video-selector="#preview-video">
+  <span>Ver artista</span>
+</div>
+```
+
+Si no usás data-video-selector, se toma el <video> dentro del contenedor como hasta ahora.
+El selector debe apuntar a un <video> existente en la vista actual.
+
+En la página destino, asegurate de tener:En la página destino, asegurate de tener:
+```html
+<video data-main-video autoplay muted loop src="/media/demo.mp4"></video>
+```
+
 ---
 
 ## Scripts por vista
