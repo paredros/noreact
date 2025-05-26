@@ -271,6 +271,77 @@ if (typeof window.__transitionVideoSyncTime !== 'undefined') {
 
 ---
 
+## ✨ Transiciones IN / OUT personalizadas
+
+El framework permite definir transiciones visuales personalizadas entre páginas usando clases CSS aplicadas automáticamente al contenedor principal `#main-content`.
+
+### 🔁 Cómo funciona
+
+- Antes de reemplazar el contenido, se aplica `.noreact-out-transition`.
+- Luego de insertar la nueva vista, se aplica `.noreact-in-transition`.
+- Ambas clases se remueven automáticamente luego de que finaliza la transición.
+
+Estas transiciones no están acopladas a una propiedad específica como `opacity`, sino que el framework espera el tiempo que definas con una variable CSS.
+
+---
+
+### 🎛 Definir duración de transición
+
+Podés especificar la duración desde CSS usando variables personalizadas:
+
+```css
+#main-content {
+  --noreact-out-duration: 0.7s;
+  --noreact-in-duration: 0.5s;
+}
+```
+
+El framework usará esos tiempos para saber cuándo continuar.
+
+---
+
+### 🧬 Ejemplo: transiciones suaves combinadas
+
+```css
+.noreact-out-transition {
+  opacity: 0;
+  transform: translateX(-50%);
+  background-color: var(--secondColor);
+  transition:
+    opacity 0.7s ease,
+    transform 0.3s ease,
+    background-color 0.5s ease;
+}
+
+.noreact-in-transition {
+  opacity: 1;
+  transform: translateX(0);
+  background-color: transparent;
+  transition:
+    opacity 0.5s ease,
+    transform 0.3s ease,
+    background-color 0.5s ease;
+}
+```
+
+---
+
+### 🎯 `transform-origin` adaptado al scroll
+
+Para animaciones que usan `scale` o `transform`, el framework ajusta automáticamente el `transform-origin` en el eje vertical, alineándolo con el centro del viewport visible en el momento de la transición.  
+Esto permite que el efecto se sienta natural incluso si la página es muy larga.
+
+---
+
+### ✅ Ventajas
+
+- Declarativo y visual, completamente desde CSS
+- Compatible con `transition` y `@keyframes`
+- No depende de eventos como `transitionend`
+- Permite animaciones más expresivas sin complicar el código JavaScript
+
+---
+
 ## Consideraciones importantes
 
 - El contenedor principal debe tener ID `#main-content`.
