@@ -174,7 +174,9 @@ export function initRouter() {
 export async function loadPage(url) {
   trigger('beforePageLoad', { url });
 
-  await runTransitionOut(container);
+  const oldContainer = container;
+
+  await runTransitionOut(oldContainer);
   window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
 
   const response = await fetch(url, {
@@ -191,8 +193,10 @@ export async function loadPage(url) {
     return;
   }
 
-  newContent.style.opacity = 0;
-  container.replaceWith(newContent);
+  //oldContainer.style.opacity = 0;
+  //newContent.style.opacity = 0;
+  //container.replaceWith(newContent);
+  oldContainer.replaceWith(newContent);
   container = newContent;
 
   void container.offsetHeight;

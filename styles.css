@@ -1,5 +1,7 @@
 #main-content {
   transition: opacity 0.3s ease-in-out;
+  --noreact-out-animation-duration: 1.2s;
+  --noreact-in-animation-duration: 0.7s;
 }
 
 #ajax-loader {
@@ -19,4 +21,48 @@
   width: 0%;
   background-color: var(--mainColor);
   transition: width 0.2s ease-out;
+}
+.noreact-out-transition {
+  animation: fade-slide-left 1.2s ease forwards;
+}
+.noreact-in-transition {
+  animation: fade-slide-from-right 0.7s ease forwards;
+}
+
+@keyframes fade-slide-left {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    background-color: #0000;
+  }
+  50%{
+    background-color: #0000;
+  }
+  59%{
+    background-color: #FFFF;
+  }
+  60%{
+    background-color: #0000;
+    opacity: 1;
+    transform: translateX(0) scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.8);
+  }
+}
+@keyframes fade-slide-from-right {
+  0% {
+    opacity: 0;
+    transform: translateX(50%) scale(0.8);
+    background-color: #0000;
+  }
+  30%{
+    opacity: 1;
+    transform: translateX(0) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0%) scale(1);
+  }
 }
