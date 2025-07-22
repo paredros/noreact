@@ -46,12 +46,13 @@ Solo necesitás adaptar tus views para que puedan devolver:
 El HTML completo (base.html + contenido) si es una carga directaO solo el bloque interno si es una navegación AJAX
 
 Ejemplo:
+
 ```python
 def about(request):
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'about.html')  # solo la parte interna
 
-    return render(request, 'base.html', {
+    return render(request, 'base_cuento.html', {
         'template': 'about.html'  # HTML completo con base
     })
 ```
@@ -67,7 +68,7 @@ El layout global (base.html) solo debe tener:
     {% include template %}
     
     <footer>...</footer>
-    <script type="module" src="{% static 'js/noreact/main.js' %}"></script>
+    <script type="module" src="{% static 'js/noreact/main_cuento.js' %}"></script>
 </body>
 ```
 Y luego, en cada template interno (about.html, artist_detail.html, etc.), usás libremente HTML como siempre, incluyendo el contenedor que será reemplazado:
@@ -87,7 +88,7 @@ No hay que romper ni reestructurar nada para trabajar con el sistema de transici
 
 | Archivo               | Rol                                                  |
 |----------------------|-------------------------------------------------------|
-| `main.js`            | Punto de entrada. Inicializa el router y dispara `afterPageLoad`. |
+| `main_cuento.js`            | Punto de entrada. Inicializa el router y dispara `afterPageLoad`. |
 | `router.js`          | Maneja la navegación AJAX y las delegaciones.         |
 | `loader.js`          | Muestra un loader de progreso y ejecuta los scripts dinámicos. |
 | `events.js`          | Sistema mínimo de eventos (`on`, `trigger`).          |
