@@ -1,0 +1,17 @@
+/* El wrapper que el core ya usa */
+#main-content {
+  position: relative;
+  overflow: visible;
+  /* height se controla por JS según el bloque visible */
+}
+
+/* Capas A/B superpuestas */
+#main-a, #main-b {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-height: 100vh;
+  pointer-events: none;
+}
+
+/* el core setea z-index/pointer-events en runtime */

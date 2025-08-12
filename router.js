@@ -25,8 +25,30 @@ export function initRouter() {
       }
       * */
 
+      // 🧩 Blocks (Fase 0): navegación interna por bloques
+      const blockBtn = e.target.closest('[data-block-target]');
+      if (blockBtn && window.noreactBlocks && typeof window.noreactBlocks.navigateTo === 'function') {
+        e.preventDefault();
+
+        const key = blockBtn.getAttribute('data-block-target');
+        if (!key) return;
+
+        // Guardar el scroll actual en el estado presente (igual que hacés con data-ajax-link)
+        const currentState = history.state || {};
+        currentState.scrollY = window.scrollY;
+        history.replaceState(currentState, '');
+
+        // Empujar un nuevo estado de tipo "block" SIN cambiar la URL visible
+        history.pushState({ type: 'block', block: key, via: 'click', scrollY: 0 }, '', location.href);
+
+        // Disparar el swap A/B del plugin (esto ya lanza before/afterPageLoad)
+        window.noreactBlocks.navigateTo(key, { via: 'click' });
+        return;
+      }
+
       const linkEl = e.target.closest('[data-ajax-link]');
       if (linkEl && !linkEl.hasAttribute('data-no-ajax')) {
+        console.log("DATA-NO-AJAX");
         e.preventDefault();
 
         const url = linkEl.tagName === 'A'
@@ -44,6 +66,7 @@ export function initRouter() {
         loadPage(url);
         return;
       }
+
 
 
 
@@ -137,8 +160,34 @@ export function initRouter() {
     //alert("P")
     //trigger('beforePageLoad', { url: location.href });
     //loadPage(location.href);
+    console.log('popstate', event.state);
     const scrollY = event.state?.scrollY ?? 0;
+    const st = event.state;
+    if (st && st.type === 'block' && window.noreactBlocks && typeof window.noreactBlocks.navigateTo === 'function') {
+      console.log("ENTRA");
+      const targetKey = st.block;
+      const restoreY = st.scrollY ?? 0;
 
+      // navigateTo es async; esperá a que monte y luego restaurá scroll
+      Promise.resolve(window.noreactBlocks.navigateTo(targetKey, { via: 'history' }))
+        .then(() => {
+          if (location.hash) return;
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              if (window.ScrollTrigger) window.ScrollTrigger.refresh(true);
+              if (window.lenis?.scrollTo) {
+                window.lenis.scrollTo(restoreY, { immediate: true });
+              } else {
+                window.scrollTo(0, restoreY);
+              }
+            });
+          });
+        })
+        .catch(() => {/* si falla, no hacemos nada extra en Fase 0 */});
+
+      return; // ⬅️ importante: no sigas al flujo de loadPage(...)
+    }
+    console.log("aca")
     loadPage(location.href).then(() => {
       if (location.hash) return;
 
