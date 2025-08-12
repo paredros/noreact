@@ -334,6 +334,126 @@ Esto permite que el efecto se sienta natural incluso si la página es muy larga.
 
 ---
 
+
+## Bloques (Plugin noreact:blocks)
+
+El módulo `noreact/blocks` extiende `noreact:core` para permitir navegación
+entre “bloques de contenido” de manera progresiva, con soporte para transición
+scroll/click y hooks de animación `in()` / `out()`.
+
+### Montaje de Buffers
+
+`noreact:blocks` utiliza **doble buffer silencioso** (`#main-a` y `#main-b`),
+superpuestos en posición absoluta, para poder realizar transiciones sin que
+un bloque empuje al otro.
+
+Cada buffer tiene altura mínima igual al viewport y `overflow: visible` para
+evitar barras de scroll internas. El bloque activo (“live”) se renderiza en uno
+de los buffers, y el próximo (“buffer”) en el otro.
+
+### HTML base para el contenedor principal
+
+El HTML inicial debe contener el contenedor que usará `noreact:blocks` para el montaje A/B:
+
+```html
+<div id="main-content">
+  <div id="main-a" data-role="main">
+    <!-- Aquí el servidor (Django) puede renderizar el primer bloque -->
+  </div>
+  <div id="main-b" data-role="main"></div>
+</div>
+```
+
+**Notas:**
+- `#main-content` es el contenedor padre de ambos buffers y debe tener `position: relative`.
+- `#main-a` y `#main-b` deben estar posicionados de forma que se superpongan (`position: absolute; inset: 0;`) y compartir el mismo tamaño mínimo (`min-height: 100vh`).
+- El bloque activo siempre estará en uno de los buffers; el otro se usa como área de carga previa antes del swap.
+
+
+
+### Estructura mínima de un Bloque
+
+Cada bloque se marca con `data-role="block"` y debe incluir un `script` con
+metadatos para el plugin:
+
+```html
+<div data-role="block">
+  <h1>Árbol</h1>
+  <p>Ir a <button data-block-target="rama">Rama</button></p>
+  <script type="application/json" data-role="block-meta">
+    { "block": "arbol", "prev": null, "next": "rama", "title": "Árbol" }
+  </script>
+</div>
+```
+
+#### Campos de `block-meta`
+
+- **block**: clave única del bloque
+- **prev**: clave del bloque anterior (o `null`)
+- **next**: clave del bloque siguiente (o `null`)
+- **title** *(opcional)*: título para `document.title`
+
+### Hooks de Animación `in()` / `out()`
+
+Cada bloque puede definir transiciones personalizadas incluyendo un script
+`type="text/anim-js"` con `data-role="block-anim"`. El código puede:
+
+1. Retornar un objeto literal con `in` y/o `out`:
+```html
+<script type="text/anim-js" data-role="block-anim">
+({ 
+  in:  (el, ctx) => gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.5 }),
+  out: (el, ctx) => gsap.to(el, { opacity: 0, duration: 0.5 })
+})
+</script>
+```
+
+2. O asignar a `window.blockAnim`:
+```html
+<script type="text/anim-js" data-role="block-anim">
+window.blockAnim = {
+  in:  (el, ctx) => gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.5 }),
+  out: (el, ctx) => gsap.to(el, { opacity: 0, duration: 0.5 })
+}
+</script>
+```
+
+Si no hay hooks en el bloque, se usan **fallbacks globales**:
+```js
+window.noreactBlocksDefaultIn  = (el, ctx) => { ... }
+window.noreactBlocksDefaultOut = (el, ctx) => { ... }
+```
+
+> **Importante:** El `swap` y `removeOldLive` se ejecutan al finalizar `out()`,
+sin imponer duración fija. Si tu `out` demora, el swap esperará.
+
+### Sentinelas de Scroll
+
+`noreact:blocks` agrega **sentinelas** en top/bottom para disparar navegación
+por scroll:
+
+- **Bottom sentinel**: dispara `next` cuando el usuario llega al final.
+- **Top sentinel**: dispara `prev` al alcanzar el inicio.
+
+Se ignoran eventos durante una transición (`busy = true`), y se filtra la
+**inercia del scroll** midiendo `delta` acumulado antes de navegar.
+
+### Inicialización
+
+```js
+import * as Blocks from '/noreact/blocks/index.js';
+
+Blocks.init({
+  debug: true
+});
+```
+
+- Los enlaces internos usan `data-block-target="clave"`.
+- La navegación manual es posible con `Blocks.navigateTo(key, { via: 'click' })`.
+- El primer bloque renderizado por el servidor será detectado automáticamente.
+
+---
+
 ### ✅ Ventajas
 
 - Declarativo y visual, completamente desde CSS
