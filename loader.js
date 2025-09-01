@@ -28,7 +28,10 @@ function hideLoader() {
 on('beforePageLoad', ({ url }) => {
   showLoader();
 
-
+  if(Array.isArray(window.__cleanup_array)){
+    window.__cleanup_array.forEach(fn => { try { fn(); } catch(e){} });
+    window.__cleanup_array=[];
+  }
   if (typeof window.cleanupPage === 'function') {
     try {
       window.cleanupPage();

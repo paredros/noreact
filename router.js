@@ -48,7 +48,7 @@ export function initRouter() {
 
       const linkEl = e.target.closest('[data-ajax-link]');
       if (linkEl && !linkEl.hasAttribute('data-no-ajax')) {
-        console.log("DATA-NO-AJAX");
+        //console.log("DATA-NO-AJAX");
         e.preventDefault();
 
         const url = linkEl.tagName === 'A'
@@ -187,7 +187,7 @@ export function initRouter() {
 
       return; // ⬅️ importante: no sigas al flujo de loadPage(...)
     }
-    console.log("aca")
+    //console.log("aca")
     loadPage(location.href).then(() => {
       if (location.hash) return;
 
