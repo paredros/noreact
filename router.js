@@ -10,6 +10,63 @@ export function initRouter() {
   container = document.querySelector(containerSelector);
 
   function setupDelegatedNavigation() {
+    document.body.addEventListener('submit', async (e) => {
+      const form = e.target;
+      if (!(form instanceof HTMLFormElement)) return;
+
+      // Sólo formularios dentro del container principal
+      if (!container || !container.contains(form)) return;
+
+      // Opt-out coherente con tus links
+      if (form.hasAttribute('data-no-ajax')) return;
+
+      // Interceptar
+      e.preventDefault();
+
+      const method = (form.getAttribute('method') || 'GET').toUpperCase();
+      let url = form.getAttribute('action') || location.href;
+
+      // Preparar fetch con los mismos headers que usás en loadPage()
+      const headers = { 'X-Requested-With': 'XMLHttpRequest' };
+      let body = null;
+
+      if (method === 'GET') {
+        const qs = new URLSearchParams(new FormData(form)).toString();
+        url += (url.includes('?') ? '&' : '?') + qs;
+      } else {
+        body = new FormData(form); // incluye csrfmiddlewaretoken
+      }
+
+      // --- mismo flujo que loadPage(url) ---
+      trigger('beforePageLoad', { url });
+
+      const oldContainer = container;
+      await runTransitionOut(oldContainer);
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+
+      const response = await fetch(url, { method, headers, body });
+      const html = await response.text();
+      const newDoc = new DOMParser().parseFromString(html, 'text/html');
+      if (response.headers.get("X-Cart-Changed") === "1") {
+        dispatchEvent(new CustomEvent("cart:changed"));
+      }
+
+      const newContent = newDoc.querySelector('#main-content');
+      if (!newContent) {
+        // fallback: si la respuesta no trae #main-content, no tocamos el DOM
+        trigger('afterPageLoad', { url });
+        return;
+      }
+
+      oldContainer.replaceWith(newContent);
+      container = newContent;
+
+      void container.offsetHeight;
+      await runTransitionIn(container);
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+
+      trigger('afterPageLoad', { url });
+    });
     document.body.addEventListener('click', (e) => {
       // manejo de links AJAX
       /*
@@ -231,6 +288,7 @@ export async function loadPage(url) {
   const response = await fetch(url, {
     headers: { 'X-Requested-With': 'XMLHttpRequest' }
   });
+
 
   const html = await response.text();
   const newDoc = new DOMParser().parseFromString(html, 'text/html');
