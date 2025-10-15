@@ -454,6 +454,77 @@ Blocks.init({
 
 ---
 
+# Formularios (submit AJAX) y evento global de carrito
+
+Desde esta versión, **noreact** intercepta envíos de formularios dentro del contenedor principal y emite un evento global cuando el servidor indica que el carrito cambió.
+
+---
+
+## Formularios AJAX
+
+**Qué hace**
+- Intercepta `submit` de `<form>` dentro de `#main-content`.
+- Ejecuta la carga por AJAX manteniendo el mismo pipeline que los links (`beforePageLoad` → transiciones → `afterPageLoad`).
+- Soporta `GET` y `POST` usando `FormData` (incluye `csrfmiddlewaretoken`).
+- Envía el header `X-Requested-With: XMLHttpRequest`.
+
+**Ámbito**
+- Sólo forms contenidos en `#main-content`.
+
+**Opt-out**
+- Agregar `data-no-ajax` al `<form>` para forzar submit nativo.
+
+**Fallback**
+- Si la respuesta no incluye un `#main-content` válido, **no** se toca el DOM y sólo se emiten los eventos de ciclo.
+
+**Notas**
+- Las transiciones usadas son las mismas que para navegación por links (`runTransitionOut`/`runTransitionIn`).
+- El historial preserva/restablece el scroll del mismo modo que en navegación AJAX.
+
+**Requisitos del servidor**
+- Las vistas que respondan a formularios deben devolver HTML con un `#main-content` de reemplazo.  
+- Si la vista realiza `redirect` (302), el fetch seguirá la 200 final y se procesará ese HTML.
+
+---
+
+## Evento global de carrito
+
+**Qué dispara el evento**
+- Si la respuesta final del servidor incluye el header:
+
+```
+X-Cart-Changed: 1
+```
+
+**Evento emitido**
+
+```
+cart:changed
+```
+
+**Uso típico**
+Escuchá el evento para refrescar contadores/totales del HUD sin recargar la página:
+
+```js
+addEventListener("cart:changed", async () => {
+  const r = await fetch("/cart/data/", { headers: { "Accept": "application/json" } });
+  if (!r.ok) return;
+  const { quantity, total_price } = await r.json();
+
+  const qtyEl   = document.querySelector("[data-cart-qty]");
+  const totalEl = document.querySelector("[data-cart-total]");
+  if (qtyEl)   qtyEl.textContent   = quantity ?? 0;
+  if (totalEl) totalEl.textContent = total_price ?? 0;
+});
+```
+
+**Requisito del servidor**
+- Cuando una vista **modifique el carrito**, agregar `X-Cart-Changed: 1` en la **respuesta final** (la que ve el cliente).
+
+---
+
+---
+
 ### ✅ Ventajas
 
 - Declarativo y visual, completamente desde CSS
