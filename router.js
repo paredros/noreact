@@ -97,7 +97,11 @@ export function initRouter() {
 
         // Empujar un nuevo estado de tipo "block" SIN cambiar la URL visible
         history.pushState({ type: 'block', block: key, via: 'click', scrollY: 0 }, '', location.href);
-
+        if(window.NOREACT_DELEGATES){
+          if(window.NOREACT_DELEGATES.ON_BLOCK_CHANGED){
+            window.NOREACT_DELEGATES.ON_BLOCK_CHANGED(key);
+          }
+        }
         // Disparar el swap A/B del plugin (esto ya lanza before/afterPageLoad)
         window.noreactBlocks.navigateTo(key, { via: 'click' });
         return;
@@ -120,6 +124,11 @@ export function initRouter() {
         history.replaceState(currentState, '');
 
         history.pushState({ scrollY: 0 }, '', url);
+        if(window.NOREACT_DELEGATES){
+          if(window.NOREACT_DELEGATES.ON_PAGE_CHANGED){
+            window.NOREACT_DELEGATES.ON_PAGE_CHANGED(url);
+          }
+        }
         loadPage(url);
         return;
       }
